@@ -73,7 +73,7 @@ export interface Clusters {
     [cluster: string]: {
         attributes: {[attribute: string]: number | string};
         attributeList: {[attribute: string]: number | null};
-        retreivedAttrs: boolean;
+        retrievedAttrs: boolean;
     };
 }
 
@@ -254,7 +254,7 @@ export class Endpoint extends ZigbeeEntity {
 
             entry.attributes ??= {};
             entry.attributeList ??= {};
-            entry.retreivedAttrs ??= false;
+            entry.retrievedAttrs ??= false;
         }
 
         // Migrate cluster renames from https://github.com/Koenkk/zigbee-herdsman/pull/1503 @deprecated 3.0
@@ -318,7 +318,7 @@ export class Endpoint extends ZigbeeEntity {
         const cluster = this.getCluster(clusterKey);
 
         if (!this.clusters[cluster.name]) {
-            this.clusters[cluster.name] = {attributes: {}, attributeList: {}, retreivedAttrs: false};
+            this.clusters[cluster.name] = {attributes: {}, attributeList: {}, retrievedAttrs: false};
         }
 
         for (const attribute in list) {
@@ -334,7 +334,7 @@ export class Endpoint extends ZigbeeEntity {
         const cluster = this.getCluster(clusterKey);
 
         if (!this.clusters[cluster.name]) {
-            this.clusters[cluster.name] = {attributes: {}, attributeList: {}, retreivedAttrs: false};
+            this.clusters[cluster.name] = {attributes: {}, attributeList: {}, retrievedAttrs: false};
         }
 
         for (const attrInfo of attrInfos) {
@@ -343,13 +343,17 @@ export class Endpoint extends ZigbeeEntity {
             this.clusters[cluster.name].attributeList[attributeKey] = attrInfo.access ?? null;
         }
 
-        this.clusters[cluster.name].retreivedAttrs = discComplete;
+        this.clusters[cluster.name].retrievedAttrs = discComplete;
     }
 
     public hasClusterAttributes(clusterKey: number | string, access = false): boolean {
         const cluster = this.getCluster(clusterKey);
-        if (!this.clusters[cluster.name]?.retreivedAttrs) return false;
-        if (!access) return true;
+        if (!this.clusters[cluster.name]?.retrievedAttrs) {
+            return false;
+        }
+        if (!access) {
+            return true;
+        }
         return this.clusters[cluster.name]?.attributeList[0] != null;
     }
 
@@ -357,14 +361,18 @@ export class Endpoint extends ZigbeeEntity {
         const cluster = this.getCluster(clusterKey);
         const clusterCache = this.clusters[cluster.name];
 
-        if (!clusterCache) return undefined;
+        if (!clusterCache) {
+            return undefined;
+        }
 
         const attribute = Zcl.Utils.getClusterAttribute(cluster, attributeKey, undefined);
         const cacheKey = attribute?.name ?? String(attributeKey);
 
-        if (Object.hasOwn(clusterCache.attributes, cacheKey) || Object.hasOwn(clusterCache.attributeList, cacheKey)) return true;
+        if (cacheKey in clusterCache.attributes || cacheKey in clusterCache.attributeList) {
+            return true;
+        }
 
-        return clusterCache.retreivedAttrs ? false : undefined;
+        return clusterCache.retrievedAttrs ? false : undefined;
     }
 
     public getClusterAttributeValue(clusterKey: number | string, attributeKey: number | string): number | string | undefined {
@@ -654,7 +662,7 @@ export class Endpoint extends ZigbeeEntity {
         const clusterCache = this.clusters[cluster.name];
         const device = this.getDevice();
 
-        if (extended && device.meta[DISCOVER_EXT_UNSUPPORTED_META_KEY] === true && clusterCache?.retreivedAttrs) {
+        if (extended && device.meta[DISCOVER_EXT_UNSUPPORTED_META_KEY] === true && clusterCache?.retrievedAttrs) {
             return;
         }
 
@@ -676,7 +684,7 @@ export class Endpoint extends ZigbeeEntity {
                 if (useExtended && response.payload.statusCode === Zcl.Status.UNSUP_COMMAND) {
                     device.meta[DISCOVER_EXT_UNSUPPORTED_META_KEY] = true;
                     device.save();
-                    if (clusterCache?.retreivedAttrs) {
+                    if (clusterCache?.retrievedAttrs) {
                         return;
                     }
                     useExtended = false;

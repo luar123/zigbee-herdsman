@@ -3566,7 +3566,7 @@ describe("Controller", () => {
                                 modelId: "lumi.occupancy",
                             },
                             attributeList: {},
-                            retreivedAttrs: false,
+                            retrievedAttrs: false,
                         },
                     },
                     inputClusters: [],
@@ -3629,7 +3629,7 @@ describe("Controller", () => {
                                 modelId: "lumi.occupancy",
                             },
                             attributeList: {},
-                            retreivedAttrs: false,
+                            retrievedAttrs: false,
                         },
                     },
                     inputClusters: [],
@@ -6922,7 +6922,7 @@ describe("Controller", () => {
                     outputClusters: [0, 3, 4, 6, 8, 5],
                     profileID: 49246,
                     ID: 1,
-                    clusters: {genBasic: {dir: {value: 3}, attributes: {modelId: "RWL021"}, attributeList: {}, retreivedAttrs: false}},
+                    clusters: {genBasic: {dir: {value: 3}, attributes: {modelId: "RWL021"}, attributeList: {}, retrievedAttrs: false}},
                     deviceIeeeAddress: "0x0017880104e45517",
                     deviceNetworkAddress: 6538,
                     _binds: [{type: "endpoint", endpointID: 1, deviceIeeeAddr: "0x000b57fffec6a5b2"}],
@@ -9690,7 +9690,7 @@ describe("Controller", () => {
             "0x129",
         );
 
-        expect(endpoint.clusters.genOnOff).toStrictEqual({attributes: {onOff: 1}, attributeList: {}, retreivedAttrs: false});
+        expect(endpoint.clusters.genOnOff).toStrictEqual({attributes: {onOff: 1}, attributeList: {}, retrievedAttrs: false});
     });
 
     it("Checks whether cluster attributes have been retrieved", async () => {
@@ -9762,7 +9762,7 @@ describe("Controller", () => {
         expect(endpoint.clusters.genOnOff).toStrictEqual({
             attributes: {},
             attributeList: {onOff: extended ? 1 : null, globalSceneCtrl: extended ? 3 : null},
-            retreivedAttrs: true,
+            retrievedAttrs: true,
         });
     });
 
@@ -9809,9 +9809,9 @@ describe("Controller", () => {
         }
 
         expect(endpoint.clusters.genOnOff.attributeList.onOff).toBeNull();
-        expect(endpoint.clusters.genOnOff.retreivedAttrs).toBe(true);
+        expect(endpoint.clusters.genOnOff.retrievedAttrs).toBe(true);
         expect(endpoint.clusters.genLevelCtrl.attributeList.currentLevel).toBe(3);
-        expect(endpoint.clusters.genLevelCtrl.retreivedAttrs).toBe(true);
+        expect(endpoint.clusters.genLevelCtrl.retrievedAttrs).toBe(true);
     });
 
     it("Stops discovery on other failures and guards against non-progressing pages", async () => {
@@ -9891,7 +9891,7 @@ describe("Controller", () => {
 
         expect(mocksendZclFrameToEndpoint).toHaveBeenCalledTimes(1);
         expect(endpoint.getDevice().meta.zclDiscoverExtUnsupported).toBe(true);
-        expect(endpoint.clusters.genOnOff.retreivedAttrs).toBe(true);
+        expect(endpoint.clusters.genOnOff.retrievedAttrs).toBe(true);
     });
 
     it("Falls back to basic discovery when extended discovery is unsupported", async () => {
@@ -9935,7 +9935,7 @@ describe("Controller", () => {
 
         expect(mocksendZclFrameToEndpoint.mock.calls.map((call) => call[3].command.name)).toStrictEqual(["discoverExt", "discover"]);
         expect(device.meta.zclDiscoverExtUnsupported).toBe(true);
-        expect(endpoint.clusters.genOnOff.retreivedAttrs).toBe(true);
+        expect(endpoint.clusters.genOnOff.retrievedAttrs).toBe(true);
 
         mocksendZclFrameToEndpoint.mockClear();
         await endpoint.discoverAttributes("genOnOff", true);
